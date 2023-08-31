@@ -1,7 +1,7 @@
 import cv2
 import requests
 
-API_KEY = "API-KEY"
+API_KEY = "YOUR_VIRUSTOTAL_API_KEY"
 
 def check_link_with_virustotal(url):
     params = {'apikey': API_KEY, 'resource': url}
