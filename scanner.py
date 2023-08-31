@@ -2,9 +2,10 @@ import cv2
 import requests
 import json
 import subprocess
+import csv
 
 API_KEY = "VirusTotal-API-KEY"
-IPINFO_API_KEY = "IPinfo-API-KEY"  # Replace with your IPinfo API key
+IPINFO_API_KEY = "IPINFO-API-KEY"
 
 def check_link_with_virustotal(url):
     params = {'apikey': API_KEY, 'resource': url}
@@ -26,19 +27,20 @@ def get_ip_location(ip_address):
     
     # Get various IPinfo data
     country = ipinfo_data.get('country')
-    region = ipinfo_data.get('region')
     city = ipinfo_data.get('city')
-    org = ipinfo_data.get('org')
-    hostname = ipinfo_data.get('hostname')
     
-    print(f"Location (Country): {country}")
-    print(f"Location (Region): {region}")
-    print(f"Location (City): {city}")
-    print(f"Organization: {org}")
-    print(f"Hostname: {hostname}")
-    
-    # You can extract more fields as needed
-    
+    return {
+        'Location_Country': country,
+        'Location_City': city,
+    }
+
+def save_to_csv(data):
+    with open('scan_results.csv', mode='a', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=data.keys())
+        if file.tell() == 0:
+            writer.writeheader()
+        writer.writerow(data)
+
 cap = cv2.VideoCapture(0)
 
 while True:
@@ -52,35 +54,40 @@ while True:
 
     if retval:
         print("Decoded QR Code:", decoded_info)
-        result = check_link_with_virustotal(decoded_info)
+        virustotal_result = check_link_with_virustotal(decoded_info)
 
-        # Get public IP address
         ip_address = get_public_ip()
 
         if ip_address:
-            print("Public IP Address:", ip_address)
-            get_ip_location(ip_address)  # Call the function to get IPinfo data
+            ipinfo_location = get_ip_location(ip_address)
             
-            if isinstance(result, dict):
-                if result.get('response_code', -1) == 1:
-                    scan_count = result.get('total', 0)
-                    if result.get('positives', 0) == 0:
-                        print(f"Gescannte Antiviren-Scanner: {scan_count}")
-                        print("Link ist sicher.")
+            if isinstance(virustotal_result, dict):
+                if virustotal_result.get('response_code', -1) == 1:
+                    scan_count = virustotal_result.get('total', 0)
+                    if virustotal_result.get('positives', 0) == 0:
+                        scan_result = 'Safe'
                     else:
-                        print("Link ist möglicherweise unsicher.")
+                        scan_result = 'Unsafe'
                         print(f"Gescannte Antiviren-Scanner: {scan_count}")
                         print("Erkannte Bedrohungen:")
-                        for scan, info in result.get('scans', {}).items():
+                        for scan, info in virustotal_result.get('scans', {}).items():
                             if info.get('detected'):
                                 print(f"{scan}: {info.get('result', 'Keine Informationen')}")
                 else:
+                    scan_result = 'Unknown'
                     print("Der Link konnte nicht überprüft werden.")
             else:
+                scan_result = 'Error'
                 print("Fehler bei der API-Antwort.")
-        else:
-            print("Konnte keine öffentliche IP-Adresse abrufen.")
-
+            
+            scan_data = {
+                'Decoded_QR_Code': decoded_info,
+                **ipinfo_location,
+                'Scan_Result': scan_result
+            }
+            
+            save_to_csv(scan_data)
+            
     cv2.imshow("QR Code Scanner", frame)
     if cv2.waitKey(1) == 27:  # Press 'Esc' to exit
         break
