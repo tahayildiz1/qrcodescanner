@@ -4,8 +4,12 @@ import json
 import subprocess
 import csv
 
-API_KEY = "VirusTotal-API-KEY"
-IPINFO_API_KEY = "IPINFO-API-KEY"
+# Read API keys from the JSON file
+with open('api_keys.json', 'r') as keys_file:
+    api_keys = json.load(keys_file)
+
+API_KEY = api_keys.get("VIRUSTOTAL_API_KEY", "Default_VirusTotal_API_KEY")
+IPINFO_API_KEY = api_keys.get("IPINFO_API_KEY", "Default_IPINFO_API_KEY")
 
 def check_link_with_virustotal(url):
     params = {'apikey': API_KEY, 'resource': url}
