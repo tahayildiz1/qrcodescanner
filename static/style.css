@@ -1,5 +1,10 @@
+/* Add your custom CSS styles here */
+
 body {
     font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
     text-align: center;
 }
 
@@ -8,9 +13,27 @@ h1 {
 }
 
 video {
-    width: 80%;
-    max-width: 800px;
+    max-width: 100%;
+    height: auto;
     margin: 20px auto;
     display: block;
-    border: 2px solid #333;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#qrResult {
+    font-size: 18px;
+    margin: 20px 0;
 }
