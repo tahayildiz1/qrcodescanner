@@ -1,0 +1,19 @@
+<!-- admin.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Page</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Admin Page</h1>
+    <h2>Scanned URLs</h2>
+    <ul>
+        {% for result in results %}
+            <li>{{ result.url }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Home</a>
+</body>
+</html>
