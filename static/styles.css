@@ -1,5 +1,4 @@
-/* styles.css */
-
+/* Default styles for larger screens */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -44,4 +43,65 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* Responsive styles for screens up to 768px wide (e.g., tablets) */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    /* Add more responsive styles as needed */
+}
+
+/* Responsive styles for screens up to 480px wide (e.g., smartphones) */
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    /* Add more responsive styles as needed */
+}
+
+/* Styles for the navigation menu */
+body {
+    margin: 0;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e7e7e7;
+    background-color: #f3f3f3;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: #666;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover:not(.active) {
+    background-color: #ddd;
+}
+
+li a.active {
+    color: white;
+    background-color: #04AA6D;
 }
