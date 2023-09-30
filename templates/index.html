@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>QR Code Scanner</title>
-</head>
-<body>
-    <h1>QR Code Scanner</h1>
-    <form action="/scan" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" value="Scan QR Code">
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>QR Code Scanner</h1>
+<form action="/scan" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type="submit" value="Scan QR Code">
+</form>
+<h2>Check URL Status</h2>
+<form action="/check_url" method="POST">
+    <input type="text" name="url" placeholder="Enter URL">
+    <input type="submit" value="Check URL">
+</form>
+{% endblock %}
