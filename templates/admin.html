@@ -1,19 +1,17 @@
-<!-- admin.html -->
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Page</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <h1>Admin Page</h1>
-    <h2>Scanned URLs</h2>
-    <ul>
-        {% for result in results %}
-            <li>{{ result.url }}</li>
-        {% endfor %}
-    </ul>
-    <a href="/">Back to Home</a>
-</body>
-</html>
+{% block content %}
+<h1>Admin Interface</h1>
+<form method="GET" action="/admin/search">
+    <input type="text" name="search_query" placeholder="Search URL">
+    <button type="submit">Search</button>
+</form>
+<!-- Display the searched URL -->
+{% if search_query %}
+    <p>Searched URL: {{ search_query }}</p>
+{% endif %}
+<!-- Display search results here -->
+{% for result in search_results %}
+    <p>{{ result.url }} - Status: {{ result.status }} - Scan Date: {{ result.scan_date }}</p>
+{% endfor %}
+{% endblock %}
