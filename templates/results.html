@@ -1,32 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Scan Results</title>
-</head>
-<body>
-    <h1>Scan Results</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>URL</th>
-                <th>Status</th>
-                <th>Scan Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
-            <tr>
-                <td>
-                    {{ result.url }}
-                    {% if result.status == 'Not Malicious' %}
-                        <a href="{{ result.url }}" target="_blank"><button>Visit URL</button></a>
-                    {% endif %}
-                </td>
-                <td>{{ result.status }}</td>
-                <td>{{ result.scan_date }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Scan Results</h1>
+<table>
+    <thead>
+        <tr>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Scan Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for result in results %}
+        <tr>
+            <td>
+                {{ result.url }}
+                {% if result.status == 'Not Malicious' %}
+                    <a href="{{ result.url }}" target="_blank"><button>Visit URL</button></a>
+                {% endif %}
+            </td>
+            <td>{{ result.status }}</td>
+            <td>{{ result.scan_date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
