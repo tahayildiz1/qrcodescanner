@@ -5,27 +5,16 @@ import cv2
 import numpy as np
 import requests
 import mysql.connector
-import flask_mail
-import requests
 from telegram import Bot
 from telegram.constants import ParseMode
-from db_config import DB_CONFIG 
-from config import VIRUSTOTAL_API_KEY
-from mail_config import MAIL_CONFIG
-from ip_info import IPINFO_API_KEY
-from datetime import datetime
-from flask_mail import Mail
-from flask_mail import Message
 
 app = Flask(__name__)
 
-mail = Mail(app)
-
-bot = Bot(token=" ")
+bot = Bot(token="YOUR_TELEGRAM_BOT_TOKEN")
 
 # Define a simple username and password (change these)
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "password"
+ADMIN_PASSWORD = "admin"
 
 def check_auth(username, password):
     return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
@@ -50,7 +39,7 @@ def before_request():
 
 def search_urls(search_query):
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(host="YOUR_DB_HOST", user="YOUR_DB_USER", password="YOUR_DB_PASSWORD", database="YOUR_DB_NAME")
         cursor = conn.cursor(dictionary=True)
 
         # Define the SQL query to search for URLs based on the search_query
@@ -69,6 +58,22 @@ def search_urls(search_query):
     except mysql.connector.Error as err:
         print(f"MySQL Error: {err}")
         return []
+
+# Initialize a list to store update messages
+updates_data = []
+
+# Define a route to add update messages from the admin page
+@app.route('/admin/add_update', methods=['POST'])
+@requires_admin_auth
+def add_update():
+    # Retrieve update message from the form submitted in the admin page
+    update_message = request.form.get('update_message')
+    
+    # Add the update message to the updates_data list
+    updates_data.append(update_message)
+    
+    # Redirect back to the admin page or wherever you want
+    return redirect(url_for('admin'))
 
 @app.route('/')
 def index():
@@ -90,8 +95,6 @@ def get_user_public_ip():
         print("Error getting user's public IP:", str(e))
         return 'Unknown'
 
-
-
 @app.route('/scan', methods=['POST'])
 def scan():
     if 'file' not in request.files:
@@ -103,7 +106,7 @@ def scan():
 
     # Get the user's IP address and city using ipinfo.io
     user_ip = request.remote_addr  # Get the user's IP address
-    ip_info_url = f"https://ipinfo.io/{user_ip}/json?token={IPINFO_API_KEY}"  # Use the API key
+    ip_info_url = f"https://ipinfo.io/{user_ip}/json?token=YOUR_IPINFO_API_KEY"  # Use your IPinfo API key
     response = requests.get(ip_info_url)
     ip_info = response.json()
     user_city = ip_info.get('city', 'Unknown')  # Get the user's city or default to 'Unknown'
@@ -145,7 +148,7 @@ def check_url():
         user_ip = get_user_public_ip()
 
         # Get the user's city using ipinfo.io
-        ip_info_url = f"https://ipinfo.io/{user_ip}/json?token={IPINFO_API_KEY}"
+        ip_info_url = f"https://ipinfo.io/{user_ip}/json?token=YOUR_IPINFO_API_KEY"
         response = requests.get(ip_info_url)
         ip_info = response.json()
         user_city = ip_info.get('city', 'Unknown')
@@ -161,6 +164,10 @@ def check_url():
         return render_template('check_url.html', result=result)
     else:
         return "No URL provided."
+
+@app.route('/updates')
+def updates():
+    return render_template('updates.html')
 
 @app.route('/about')
 def about():
@@ -181,12 +188,15 @@ def contact():
         email = request.form.get('email')
         message = request.form.get('message')
 
-        chat_id = " "  
+        # Send the message to your Telegram bot
+        chat_id = "YOUR_CHAT_ID"  # Replace with your chat ID or recipient's chat ID
         notification_message = f"Name: {name}\nEmail: {email}\nMessage:\n{message}"
 
+        # Use async/await to send the message asynchronously
         async def send_message():
             await bot.send_message(chat_id=chat_id, text=notification_message, parse_mode=ParseMode.MARKDOWN)
 
+        # Create an asyncio event loop and run the send_message coroutine
         import asyncio
         asyncio.run(send_message())
 
@@ -195,15 +205,13 @@ def contact():
     # Render the contact form page for GET requests
     return render_template('contact.html')
 
-
-
 def check_single_url_with_virustotal(url):
     # Debug: Print URL being checked
     print("Checking URL:", url)
 
     # Perform the API request to check the URL status here
     params = {
-        'apikey': VIRUSTOTAL_API_KEY,
+        'apikey': 'YOUR_VIRUSTOTAL_API_KEY',
         'resource': url
     }
     response = requests.get('https://www.virustotal.com/vtapi/v2/url/report', params=params)
@@ -222,42 +230,9 @@ def check_single_url_with_virustotal(url):
 
     return result
 
-def check_url_with_virustotal(urls):
-    results = []
-
-    for url in urls:
-        params = {
-            'apikey': VIRUSTOTAL_API_KEY,
-            'resource': url
-        }
-        response = requests.get('https://www.virustotal.com/vtapi/v2/url/report', params=params)
-        json_response = response.json()
-
-        # Debug: Print URL being checked
-        print("Checking URL:", url)
-
-        # Use the current date and time instead of VirusTotal's scan date
-        scan_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Check the response from VirusTotal for malicious indicators
-        if json_response.get('positives', 0) > 0:
-            status = 'Malicious'
-        else:
-            status = 'Not Malicious'
-
-        result = {
-            'url': url,
-            'status': status,
-            'scan_date': scan_date  # Use the current date and time
-        }
-
-        results.append(result)
-
-    return results
-
 def save_results_to_mysql(results):
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(host="YOUR_DB_HOST", user="YOUR_DB_USER", password="YOUR_DB_PASSWORD", database="YOUR_DB_NAME")
         cursor = conn.cursor()
 
         for result in results:
@@ -281,7 +256,7 @@ def save_results_to_mysql(results):
 
 def save_ip_results_to_mysql(ip_address, city):
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(host="YOUR_DB_HOST", user="YOUR_DB_USER", password="YOUR_DB_PASSWORD", database="YOUR_DB_NAME")
         cursor = conn.cursor()
 
         # Check if the IP address already exists in the database
@@ -310,6 +285,25 @@ def save_ip_results_to_mysql(ip_address, city):
         print(f"IP Address: {ip_address}")
         print(f"City: {city}")
 
+def fetch_scanned_urls():
+    try:
+        conn = mysql.connector.connect(host="YOUR_DB_HOST", user="YOUR_DB_USER", password="YOUR_DB_PASSWORD", database="YOUR_DB_NAME")
+        cursor = conn.cursor(dictionary=True)
+
+        # Define a SQL query to fetch scanned URLs
+        query = "SELECT * FROM scan_results"
+        cursor.execute(query)
+
+        results = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return results
+    except mysql.connector.Error as err:
+        print(f"MySQL Error: {err}")
+        return []
+
 @app.route('/admin')
 @requires_admin_auth
 def admin():
@@ -321,7 +315,6 @@ def admin():
 def page_not_found(error):
     return render_template('error.html'), 404
 
-
 @app.route('/admin/search', methods=['GET'])
 @requires_admin_auth
 def search():
@@ -330,7 +323,7 @@ def search():
     # Call the search_urls function to perform the search
     results = search_urls(search_query)
     
-    return render_template('admin.html', search_results=results, search_query=search_query)
+    return render_template('search.html', search_results=results, search_query=search_query)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=False,port=5000)
+    app.run(host='0.0.0.0', debug=False, port=88)
