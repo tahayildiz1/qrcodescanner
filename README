@@ -2,7 +2,7 @@
 
 This is a Flask-based web application for scanning QR codes and checking the safety of URLs using VirusTotal. The app allows users to upload images containing QR codes for scanning and provides information about the safety of the URLs found in the QR codes.
 
-![QR Code Scanner]
+![QR Code Scanner](screenshot.png)
 
 ## Features
 
@@ -32,18 +32,6 @@ Before you begin, ensure you have met the following requirements:
 ## Installation
 
 1. Clone this repository:
-   ```shell
-   git clone https://github.com/tahayildiz1/qrcodescsanner.git
-2. 
-  ```shell
-  cd qr-code-scanner
-3.
-  ```shell
-  pip install -r requirements.txt
-4.
-Create a config.py file and add your configuration settings, including the VirusTotal API key, database connection details, and more.
-5.
-Create a db_config.py file for your database configuration.
-6.
-Create a mail_config.py file for your email configuration if you intend to use email notifications.
 
+   ```shell
+   git clone https://github.com/yourusername/qr-code-scanner.git
