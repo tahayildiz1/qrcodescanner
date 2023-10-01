@@ -2,7 +2,7 @@
 
 This is a Flask-based web application for scanning QR codes and checking the safety of URLs using VirusTotal. The app allows users to upload images containing QR codes for scanning and provides information about the safety of the URLs found in the QR codes.
 
-![QR Code Scanner](screenshot.png)
+![QR Code Scanner]
 
 ## Features
 
